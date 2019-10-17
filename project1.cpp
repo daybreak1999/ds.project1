@@ -259,6 +259,7 @@ bool map::clear(int row1)
         }
     }
 
+    // clear
     for (; clear_n > 0; clear_n--) {
         for (int i = clearline[clear_n - 1] + 1; i < row; i++) {
             for (int j = 0; j < col; j++) {
@@ -274,7 +275,7 @@ bool map::clear(int row1)
     int col2[3] = {0};
     int k = 0;
 
-    // check dead
+    // check dead && set second drop
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < col; j++) {
             if (dot[row + i][j] == 1) {
@@ -314,6 +315,8 @@ bool map::clear(int row1)
     clearline[4] = {0};
     clear_n = 0;
 
+    int secondclear = 0;
+
     // second find line to clear
     for (int i = 0; i < 3 && row2[0] + i < row; i++) {
         for (int j = 0; j < col; j++) {
@@ -324,9 +327,12 @@ bool map::clear(int row1)
                     dot[row2[0] + i][k] = 0;
                 clearline[clear_n] = row2[0] + i;
                 clear_n++;
+                secondclear = 1;
             }
         }
     }
+
+
 
     // second clear
     for (; clear_n > 0; clear_n--) {
@@ -340,10 +346,49 @@ bool map::clear(int row1)
         }
     }
 
+    int row3[2] = {0};
+    int col3[2] = {0};
+    int thirddrop = 0;
+    k = 0;
 
+    // second check dead & set third drop
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < col; j++) {
+            if (dot[row + i][j] == 1) {                
+                if (secondclear) {
+                    thirddrop = 1;
+                    row3[k] = row + i;
+                    col3[k] = j;
+                    k++;
+                    dot[row + i][j] = 0;
+                }
+                else
+                    return 1;
+            }
+        }
+    }
 
-    // second check dead
-    for (int i = 0; i < 4; i++) {
+ // third drop
+    stop = 0;
+    if (thirddrop) {
+        for (int i = 0; i < row && !stop; i++) {
+            for (int m = 0; m < k; m++) {
+                if (dot[row3[m] - 1][col3[m]] != 0)
+                    stop = 1;
+            }
+            if (!stop) {
+                for (int m = 0; m < k; m++)
+                    row3[m]--;
+            }
+        }
+        for (int m = 0; m < k; m++)
+            dot[row3[m]][col3[m]] = 1;
+    }
+    else 
+        return 0;   
+    
+    // third check dead
+    for (int i = 0; i < 3; i++) {
         for (int j = 0; j < col; j++) {
             if (dot[row + i][j] == 1) {
                 return 1;
